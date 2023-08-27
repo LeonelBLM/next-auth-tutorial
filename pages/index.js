@@ -1,24 +1,32 @@
-import {getSession} from 'next-auth/react'
-import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/router'
 
 function HomePage(){
+  
+  const {data: session, status} = useSession()
+  const router = useRouter()
 
-  const [user, setUser] = useState(null)
+  if (status === 'loading'){
+    return<p>Loading...</p>
+  }
 
-  useEffect (() => {
-    (async() => {
-      const session = await getSession()
-      setUser(session.user);
-    })();
-  }, [])
-
+  if (status === 'unauthenticated'){
+    router.push('login')
+  }
+  
   return(
     <div>
-      {JSON.stringify(user)}
-
-      <h1>{user.name}</h1>
-      <p>{user.email}</p>
-      <img src={user.image} alt="" />
+      {
+        session ? (
+          <div>
+            <h1>{session.user.name}</h1>
+            <p>{session.user.email}</p>
+            <img src={session.user.image} alt="" />
+          </div>
+        ) : (
+          <p>Skeleton</p>
+        )
+      }
 
     </div>
   )
